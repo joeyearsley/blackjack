@@ -1,0 +1,44 @@
+<p>This is the about view.</p>
+  <button ng-click="resetGame()">Reset Game (Same Setup)</button>
+<button ng-click="newHand()" ng-if="dealer.finished && !dealer.gameOver">New Hand</button>
+  <p>Bets are set at 5 Credits, initial money is set at 50. Dealer has Number of players * 50 for initial money</p>
+<table st-table="players" class="table table-striped" ng-if="!dealer.gameOver">
+  <thead>
+  <tr>
+    <th>Username</th>
+    <th>Money</th>
+    <th>Cards</th>
+  </tr>
+  </thead>
+  <tbody>
+  <!-- use track by to only update when players changed.-->
+  <tr ng-repeat="player in dealer.Players track by player.pid">
+    <!--Use :: so that it only binds once, letting the watchers know it won't change-->
+    <td>{{::player.userName}}</td>
+    <td>{{player.money}}</td>
+    <td>
+      <!-- Go through hands of the player -->
+      <div ng-repeat="hand in player.hands">
+          <span>Hand {{$index+1}}</span>
+          <!-- Output each card of that hand -->
+          <span ng-repeat="card in hand.hand"> {{card.card}} of {{card.suit}}</span>
+          <!--if can bet, plus not bust show the total-->
+          <div ng-if="!player.getBust($index) && player.money >= 5">Total: {{hand.total}}</div>
+          <!--Otherwise show bust if still got money -->
+          <div ng-if="player.getBust($index) && player.money >= 5">BUST</div>
+          <!--Else No Money -->
+          <div ng-if="player.money < 5">Out Of Game</div>
+          <div ng-if="player.money >= 5">
+            <div ng-if="player.pid == dealer._playing && $index == player._playingHand && player.pid != 'd'">
+              <button ng-click="dealer.hit();">Hit</button>
+              <button ng-click="dealer.nextHand()">Stick</button>
+              <button ng-if="hand.same && player.money > 10" ng-click="dealer.split()">Split</button>
+            </div>
+          </div>
+        </div>
+    <td>
+
+  </tr>
+  </tbody>
+</table>
+<h3 ng-if="dealer.gameOver">GAME OVER!</h3>
